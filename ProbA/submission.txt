@@ -1,0 +1,4 @@
+Number of HIP-capable devices: 8
+Hello from GPU!
+2993366
+0.000000000 0.000000000 0.000000000 0.000000000 
