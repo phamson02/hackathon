@@ -90,23 +90,6 @@ bool rmsnormq(int M, int N, int K,
 {
     const int threads = 256;
     dim3 grid(M), block(threads);
-
-    auto HIP_OK = [](hipError_t e){ return e == hipSuccess; };
-
-    bool free_in=false, free_out=false;
-    if (!input_gpu){ if(!HIP_OK(hipMalloc(&input_gpu,  M*N*sizeof(float)))) return false; free_in=true; }
-    if (!output_gpu){ if(!HIP_OK(hipMalloc(&output_gpu, M*N*sizeof(float)))) return false; free_out=true; }
-
-    if (input_cpu)
-        if(!HIP_OK(hipMemcpy(input_gpu, input_cpu, M*N*sizeof(float), hipMemcpyHostToDevice))) return false;
-
     hipLaunchKernelGGL(rmsnorm_group_kernel, grid, block, 0, 0, input_gpu, output_gpu, N, K);
-    if(!HIP_OK(hipGetLastError())) return false;
-
-    if (output_cpu)
-        if(!HIP_OK(hipMemcpy(output_cpu, output_gpu, M*N*sizeof(float), hipMemcpyDeviceToHost))) return false;
-
-    if (free_in)  hipFree(input_gpu);
-    if (free_out) hipFree(output_gpu);
     return true;
 }
